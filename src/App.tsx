@@ -1,6 +1,10 @@
 import "./App.css";
+import { TimeLine } from "./components/Timeline";
+import { generateEvents } from "./data/generateEvents";
 
-function App() {
+const sampleEvents = generateEvents(70);
+
+export default function App() {
   return (
     <div>
       <header className="app-header">
@@ -32,11 +36,10 @@ function App() {
 
           <section className="workspace__panel">
             <h2>Timeline</h2>
+            <TimeLine events={sampleEvents} />
           </section>
         </div>
       </main>
     </div>
   );
 }
-
-export default App;

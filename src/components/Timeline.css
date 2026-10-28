@@ -1,0 +1,45 @@
+.timeline-timezone{
+    margin: 0 0 1rem;
+    color: #526174;
+    font-size: 0.875rem;
+}
+
+.timeline-group + .timeline-group{
+    margin-top: 1.5rem;
+}
+
+.timeline-group h3{
+    margin: 0 0 1rem;
+    font-size: 1rem;
+}
+
+.timeline-events {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.timeline-event {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem 0 0.75rem 1rem;
+    border-left: 2px solid #dce1e8;
+}
+
+.timeline-event > time{
+    flex-shrink: 0;
+    color: #526174;
+    font-size: 0.875rem;
+}
+
+.timeline-event-title{
+    margin: 0;
+    font-weight: 600;
+}
+
+.timeline-event-location{
+    margin: 0.25rem 0 0;
+    color: #526174;
+    font-size: 0.875rem;
+}
