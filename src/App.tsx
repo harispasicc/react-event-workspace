@@ -18,8 +18,6 @@ export default function App() {
     [events, timelineIds],
   );
 
-  console.log("Grid records:", events.length);
-  console.log("Timeline events:", timelineEvents.length);
   return (
     <div>
       <header className="app-header">

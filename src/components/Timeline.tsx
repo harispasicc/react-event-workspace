@@ -26,6 +26,7 @@ export function Timeline({ events }: TimelineProps) {
   const eventElements = useRef(new Map<string, HTMLDivElement>());
   const pendingFocusId = useRef<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [announcement, setAnnouncement] = useState("");
 
   const groupCounts = useMemo(
     () => groups.map((group) => group.events.length),
@@ -48,6 +49,35 @@ export function Timeline({ events }: TimelineProps) {
 
     return indexes;
   }, [groupCounts]);
+
+  function focusEvent(index: number) {
+    const event = sortedEvents[index];
+
+    if (!event) return;
+
+    setActiveIndex(index);
+
+    const element = eventElements.current.get(event.id);
+
+    if (element) {
+      pendingFocusId.current = null;
+      element.focus({ preventScroll: true });
+
+      element.scrollIntoView({
+        block: "nearest",
+        inline: "nearest",
+        behavior: "auto",
+      });
+    } else {
+      pendingFocusId.current = event.id;
+    }
+
+    virtuosoRef.current?.scrollToIndex({
+      index,
+      align: "center",
+      behavior: "auto",
+    });
+  }
 
   function handleEventKeyDown(
     e: KeyboardEvent<HTMLDivElement>,
@@ -89,25 +119,7 @@ export function Timeline({ events }: TimelineProps) {
 
     if (nextIndex === index) return;
 
-    const nextEvent = sortedEvents[nextIndex];
-    if (!nextEvent) return;
-
-    setActiveIndex(nextIndex);
-
-    const element = eventElements.current.get(nextEvent.id);
-
-    if (element) {
-      pendingFocusId.current = null;
-      element.focus({ preventScroll: true });
-    } else {
-      pendingFocusId.current = nextEvent.id;
-    }
-
-    virtuosoRef.current?.scrollToIndex({
-      index: nextIndex,
-      align: "center",
-      behavior: "auto",
-    });
+    focusEvent(nextIndex);
   }
 
   if (groups.length === 0) {
@@ -117,6 +129,20 @@ export function Timeline({ events }: TimelineProps) {
   return (
     <div>
       <p className="timeline-timezone">All times in UTC</p>
+      <button
+        type="button"
+        onClick={() =>
+          focusEvent(Math.min(activeIndex, sortedEvents.length - 1))
+        }
+      >
+        Focus timeline
+      </button>
+      <p className="timeline-instructions">
+        Up and Down: events within a day. Left and Right: change day.
+      </p>
+      <div className="timeline-announcement" role="status" aria-atomic="true">
+        {announcement}
+      </div>
       <GroupedVirtuoso
         ref={virtuosoRef}
         style={{ height: 500 }}
@@ -146,7 +172,7 @@ export function Timeline({ events }: TimelineProps) {
                 if (element) {
                   eventElements.current.set(event.id, element);
 
-                  if (pendingFocusId.current == event.id) {
+                  if (pendingFocusId.current === event.id) {
                     pendingFocusId.current = null;
                     element.focus({ preventScroll: true });
                     element.scrollIntoView({
@@ -159,9 +185,16 @@ export function Timeline({ events }: TimelineProps) {
                   eventElements.current.delete(event.id);
                 }
               }}
-              tabIndex={index === activeIndex ? 0 : -1}
+              tabIndex={-1}
               onFocus={() => {
                 setActiveIndex(index);
+
+                setAnnouncement(
+                  `${dayFormatter.format(new Date(event.startsAt))}. ` +
+                    `${timeFormatter.format(new Date(event.startsAt))} UTC. ` +
+                    `${event.title}. ${event.location}. ` +
+                    `Event ${index + 1} of ${sortedEvents.length}.`,
+                );
               }}
               onKeyDown={(e) => handleEventKeyDown(e, index, groupIndex)}
             >
