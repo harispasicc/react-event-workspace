@@ -25,6 +25,12 @@
     font-size: 0.875rem;
 }
 
+.timeline-event:focus{
+    outline: 2px solid #2563eb;
+    outline-offset: -2px;
+    background-color: #eff6ff;
+}
+
 .timeline-event-title{
     margin: 0;
     font-weight: 600;
