@@ -19,7 +19,10 @@ export const eventColumns: ColumnDef<CalendarEvent>[] = [
 {
     accessorKey: "startsAt",
     header: "Date (UTC)",
-    cell: ({row}) => dateFormatter.format(new Date(row.original.startsAt))
+    cell: ({row}) => dateFormatter.format(new Date(row.original.startsAt)),
+    meta: {
+        filterInputType: "date",
+    }
 },
 {
     accessorKey: "location",

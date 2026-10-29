@@ -16,6 +16,8 @@ type DataGridProps<T> = {
   columns: ColumnDef<T>[];
   getRowId: (row: T) => string;
   title: string;
+  isLoading?: boolean;
+  error?: string;
 };
 
 export function DataGrid<T>({
@@ -23,7 +25,11 @@ export function DataGrid<T>({
   columns,
   getRowId,
   title,
+  isLoading = false,
+  error,
 }: DataGridProps<T>) {
+  "use no memo";
+
   const table = useReactTable({
     data,
     columns,
@@ -42,6 +48,13 @@ export function DataGrid<T>({
       },
     },
   });
+
+  const rows = table.getRowModel().rows;
+
+  const emptyMessage =
+    data.length === 0
+      ? "No events to display"
+      : "No events match your filters.";
 
   return (
     <div>
@@ -146,7 +159,7 @@ export function DataGrid<T>({
         </div>
       )}
       <div className="data-grid-scroll">
-        <table className="data-grid-table">
+        <table className="data-grid-table" aria-busy={isLoading}>
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -202,7 +215,8 @@ export function DataGrid<T>({
                             header.column.setFilterValue(value)
                           }
                           inputType={
-                            header.column.id === "startsAt" ? "date" : "search"
+                            header.column.columnDef.meta?.filterInputType ??
+                            "search"
                           }
                         />
                       )}
@@ -214,41 +228,75 @@ export function DataGrid<T>({
           </thead>
 
           <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+            {isLoading ? (
+              <tr>
+                <td
+                  className="data-grid-state"
+                  colSpan={table.getVisibleLeafColumns().length}
+                >
+                  <p role="status">Loading events…</p>
+                </td>
               </tr>
-            ))}
+            ) : error ? (
+              <tr>
+                <td
+                  className="data-grid-state"
+                  colSpan={table.getVisibleLeafColumns().length}
+                >
+                  <p role="alert">{error}</p>
+                </td>
+              </tr>
+            ) : rows.length === 0 ? (
+              <tr>
+                <td
+                  className="data-grid-state"
+                  colSpan={table.getVisibleLeafColumns().length}
+                >
+                  <p role="status">{emptyMessage}</p>
+                </td>
+              </tr>
+            ) : (
+              rows.map((row) => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="data-grid-pagination">
-        <button
-          type="button"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </button>
+      {!isLoading && !error && rows.length > 0 && (
+        <div className="data-grid-pagination">
+          <button
+            type="button"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </button>
 
-        <span>
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {Math.max(1, table.getPageCount())}
-        </span>
+          <span>
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {Math.max(1, table.getPageCount())}
+          </span>
 
-        <button
-          type="button"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
