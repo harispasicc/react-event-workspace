@@ -9,6 +9,7 @@ import type { CalendarEvent } from "./types/events";
 import * as Dialog from "@radix-ui/react-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import { HiPencil } from "react-icons/hi2";
+import { SiGithub } from "react-icons/si";
 
 const initialEvents = generateEvents(100_000);
 
@@ -106,8 +107,9 @@ export default function App() {
               setSuccessMessage("");
               setIsFormOpen(true);
             }}
+            title="Edit event"
           >
-            <HiPencil size={16} aria-hidden="true" title="Edit event" />
+            <HiPencil size={16} aria-hidden="true" />
           </button>
         ),
       },
@@ -124,17 +126,11 @@ export default function App() {
           rel="noopener noreferrer"
           className="app-header-link"
         >
-          View source
+          <SiGithub size={18} aria-hidden="true" />
+          <span>View source</span>
         </a>
       </header>
       <main className="workspace">
-        <div className="workspace-intro">
-          <div>
-            <h1>Operations events</h1>
-            <p>Plan, review and track activity across your site.</p>
-          </div>
-        </div>
-
         <div
           className={`workspace-success${successMessage ? " is-visible" : ""}`}
           role="status"
@@ -214,7 +210,12 @@ export default function App() {
             </Dialog.Root>
           </section>
           <section className="workspace__panel">
-            <h2>Timeline</h2>
+            <h2>
+              Timeline
+              <span className="workspace-count">
+                {timelineEvents.length.toLocaleString("en-GB")} events
+              </span>
+            </h2>
             <Timeline events={timelineEvents} />
           </section>
         </div>
