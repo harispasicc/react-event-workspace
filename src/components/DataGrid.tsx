@@ -11,6 +11,12 @@ import {
 import { ColumnFilter } from "./ColumnFilter";
 import * as Popover from "@radix-ui/react-popover";
 import "./DataGrid.css";
+import {
+  HiArrowDown,
+  HiArrowUp,
+  HiCheck,
+  HiViewColumns,
+} from "react-icons/hi2";
 
 type DataGridProps<T> = {
   data: T[];
@@ -73,17 +79,7 @@ export function DataGrid<T>({
                 className="data-grid-columns-trigger"
                 aria-label="Display columns"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <rect x="3" y="4" width="5" height="16" rx="1" />
-                  <rect x="9.5" y="4" width="5" height="16" rx="1" />
-                  <rect x="16" y="4" width="5" height="16" rx="1" />
-                </svg>
+                <HiViewColumns size={16} aria-hidden="true" />
               </button>
             </Popover.Trigger>
             <Popover.Portal>
@@ -104,22 +100,12 @@ export function DataGrid<T>({
                       disabled={!column.getCanHide()}
                       onChange={column.getToggleVisibilityHandler()}
                     />
-                    <svg
+                    <HiCheck
                       className="data-grid-column-check"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                      size={16}
                       aria-hidden="true"
-                    >
-                      <path d="m5 12 4 4L19 6" />
-                    </svg>
+                    />
                     <span>
-                      {" "}
                       {typeof column.columnDef.header === "string"
                         ? column.columnDef.header
                         : column.id}
@@ -194,13 +180,11 @@ export function DataGrid<T>({
                             header.getContext(),
                           )}
 
-                          <span aria-hidden="true">
-                            {header.column.getIsSorted() === "asc"
-                              ? "↑"
-                              : header.column.getIsSorted() === "desc"
-                                ? " ↓"
-                                : ""}
-                          </span>
+                          {header.column.getIsSorted() === "asc" ? (
+                            <HiArrowUp size={16} aria-hidden="true" />
+                          ) : header.column.getIsSorted() === "desc" ? (
+                            <HiArrowDown size={16} aria-hidden="true" />
+                          ) : null}
                         </button>
                       ) : (
                         flexRender(

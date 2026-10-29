@@ -134,3 +134,28 @@
   box-shadow: 0 4px 16px rgb(0 0 0 / 10%);
   text-align: center;
 }
+
+.event-edit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #526174;
+  cursor: pointer;
+}
+
+.event-edit-button:hover {
+  background: transparent;
+  color: #1d4ed8;
+}
+
+.event-edit-button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}

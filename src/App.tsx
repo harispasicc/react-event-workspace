@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { Timeline } from "./components/Timeline";
 import { generateEvents } from "./data/generateEvents";
@@ -7,6 +7,8 @@ import { eventColumns } from "./data/eventColumns";
 import { EventForm } from "./components/EventForm";
 import type { CalendarEvent } from "./types/events";
 import * as Dialog from "@radix-ui/react-dialog";
+import type { ColumnDef } from "@tanstack/react-table";
+import { HiPencil } from "react-icons/hi2";
 
 const initialEvents = generateEvents(100_000);
 
@@ -19,6 +21,10 @@ export default function App() {
   const [timelineIds, setTimelineIds] = useState(initialTimelineIds);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!successMessage) return;
@@ -35,25 +41,79 @@ export default function App() {
     [events, timelineIds],
   );
 
-  function handleCreateEvent(values: Omit<CalendarEvent, "id">) {
-    const newEvent: CalendarEvent = {
-      ...values,
-      id: crypto.randomUUID(),
-    };
+  function handleSaveEvent(values: Omit<CalendarEvent, "id">) {
+    if (editingEvent) {
+      const hasChanges =
+        values.title !== editingEvent.title ||
+        values.startsAt !== editingEvent.startsAt ||
+        values.location !== editingEvent.location ||
+        values.status !== editingEvent.status;
 
-    console.log("Created event:", newEvent);
+      if (!hasChanges) {
+        setIsFormOpen(false);
+        return;
+      }
 
-    setEvents((previous) => [newEvent, ...previous]);
+      const updatedEvent: CalendarEvent = {
+        ...values,
+        id: editingEvent.id,
+      };
 
-    setTimelineIds((previous) => {
-      const next = new Set(previous);
-      next.add(newEvent.id);
-      return next;
-    });
+      setEvents((previous) =>
+        previous.map((event) =>
+          event.id === updatedEvent.id ? updatedEvent : event,
+        ),
+      );
+
+      setSuccessMessage(`Event "${updatedEvent.title}" updated successfully.`);
+    } else {
+      const newEvent: CalendarEvent = {
+        ...values,
+        id: crypto.randomUUID(),
+      };
+
+      setEvents((previous) => [newEvent, ...previous]);
+
+      setTimelineIds((previous) => {
+        const next = new Set(previous);
+        next.add(newEvent.id);
+        return next;
+      });
+
+      setSuccessMessage(`Event "${newEvent.title}" created successfully.`);
+    }
 
     setIsFormOpen(false);
-    setSuccessMessage(`Event "${newEvent.title}" created successfully.`);
   }
+
+  const columns = useMemo<ColumnDef<CalendarEvent>[]>(
+    () => [
+      ...eventColumns,
+      {
+        id: "actions",
+        header: "",
+        enableSorting: false,
+        enableColumnFilter: false,
+        enableHiding: false,
+        cell: ({ row }) => (
+          <button
+            type="button"
+            className="event-edit-button"
+            aria-label={`Edit ${row.original.title}, ${row.original.id}`}
+            onClick={(event) => {
+              editButtonRef.current = event.currentTarget;
+              setEditingEvent(row.original);
+              setSuccessMessage("");
+              setIsFormOpen(true);
+            }}
+          >
+            <HiPencil size={16} aria-hidden="true" title="Edit event" />
+          </button>
+        ),
+      },
+    ],
+    [],
+  );
   return (
     <div>
       <header className="app-header">
@@ -88,7 +148,6 @@ export default function App() {
             <Dialog.Root
               open={isFormOpen}
               onOpenChange={(open) => {
-                console.log("Dialog open:", open);
                 setIsFormOpen(open);
 
                 if (open) {
@@ -98,12 +157,20 @@ export default function App() {
             >
               <DataGrid
                 data={events}
-                columns={eventColumns}
+                columns={columns}
                 getRowId={(event) => event.id}
                 title="Event register"
                 actions={
                   <Dialog.Trigger asChild>
-                    <button type="button" className="new-event-button">
+                    <button
+                      type="button"
+                      ref={addButtonRef}
+                      className="new-event-button"
+                      onClick={() => {
+                        editButtonRef.current = null;
+                        setEditingEvent(null);
+                      }}
+                    >
                       <span aria-hidden="true">+</span>
                       ADD EVENT
                     </button>
@@ -114,18 +181,32 @@ export default function App() {
               <Dialog.Portal>
                 <Dialog.Overlay className="event-dialog-overlay" />
 
-                <Dialog.Content className="event-dialog-content">
+                <Dialog.Content
+                  className="event-dialog-content"
+                  onCloseAutoFocus={(event) => {
+                    event.preventDefault();
+
+                    const editButton = editButtonRef.current;
+
+                    if (editButton?.isConnected) {
+                      editButton.focus();
+                    } else {
+                      addButtonRef.current?.focus();
+                    }
+                  }}
+                >
                   <Dialog.Title className="event-dialog-title">
-                    New event
+                    {editingEvent ? "Edit event" : "New event"}
                   </Dialog.Title>
 
                   <Dialog.Description className="event-dialog-description">
-                    Add an event to the register and timeline. All times are in
-                    UTC.
+                    Enter the event details. All times are in UTC.
                   </Dialog.Description>
 
                   <EventForm
-                    onSave={handleCreateEvent}
+                    key={editingEvent?.id ?? "new"}
+                    event={editingEvent ?? undefined}
+                    onSave={handleSaveEvent}
                     onCancel={() => setIsFormOpen(false)}
                   />
                 </Dialog.Content>
