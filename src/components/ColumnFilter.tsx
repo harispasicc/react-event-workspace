@@ -1,6 +1,7 @@
 import * as Popover from "@radix-ui/react-popover";
 import { useId, useState } from "react";
 import "./ColumnFilter.css";
+import { HiFunnel } from "react-icons/hi2";
 
 type ColumnFilterProps = {
   label: string;
@@ -36,19 +37,7 @@ export function ColumnFilter({
           data-active={value.length > 0}
           aria-label={`Filter ${label}${value ? ", active" : ""}`}
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M4 4h16l-6 7v7l-4 2v-9L4 4Z" />
-          </svg>
+          <HiFunnel size={16} aria-hidden="true" />
         </button>
       </Popover.Trigger>
       <Popover.Portal>

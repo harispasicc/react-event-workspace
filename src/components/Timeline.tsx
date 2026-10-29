@@ -128,15 +128,19 @@ export function Timeline({ events }: TimelineProps) {
 
   return (
     <div>
-      <p className="timeline-timezone">All times in UTC</p>
-      <button
-        type="button"
-        onClick={() =>
-          focusEvent(Math.min(activeIndex, sortedEvents.length - 1))
-        }
-      >
-        Focus timeline
-      </button>
+      <div className="timeline-toolbar">
+        <p className="timeline-timezone">All times in UTC</p>
+
+        <button
+          type="button"
+          className="timeline-focus-button"
+          onClick={() =>
+            focusEvent(Math.min(activeIndex, sortedEvents.length - 1))
+          }
+        >
+          Focus timeline
+        </button>
+      </div>
       <p className="timeline-instructions">
         Up and Down: events within a day. Left and Right: change day.
       </p>
