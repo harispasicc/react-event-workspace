@@ -46,11 +46,11 @@ export default function App() {
 
         <div className="workspace__grid">
           <section className="workspace__panel">
-            <h2>Event register</h2>
             <DataGrid
               data={events}
               columns={eventColumns}
               getRowId={(event) => event.id}
+              title="Event register"
             />
           </section>
           <section className="workspace__panel">
