@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import "./App.css";
 import { Timeline } from "./components/Timeline";
 import { generateEvents } from "./data/generateEvents";
+import { DataGrid } from "./components/DataGrid";
+import { eventColumns } from "./data/eventColumns";
 
 const initialEvents = generateEvents(100_000);
 
@@ -45,8 +47,12 @@ export default function App() {
         <div className="workspace__grid">
           <section className="workspace__panel">
             <h2>Event register</h2>
+            <DataGrid
+              data={events}
+              columns={eventColumns}
+              getRowId={(event) => event.id}
+            />
           </section>
-
           <section className="workspace__panel">
             <h2>Timeline</h2>
             <Timeline events={timelineEvents} />
