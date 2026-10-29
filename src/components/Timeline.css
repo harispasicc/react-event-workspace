@@ -47,3 +47,38 @@
   color: #526174;
   font-size: 0.875rem;
 }
+
+.timeline-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.timeline-toolbar .timeline-timezone {
+  margin: 0;
+}
+
+.timeline-focus-button {
+  min-height: 36px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.timeline-focus-button:hover {
+  background: #f1f5f9;
+}
+
+.timeline-focus-button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}

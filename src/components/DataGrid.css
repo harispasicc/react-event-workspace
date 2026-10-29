@@ -223,3 +223,9 @@
     margin: 0;
     color: #526174;
   }
+
+  .data-grid-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
