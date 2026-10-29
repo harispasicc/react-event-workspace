@@ -9,14 +9,10 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table";
 import { ColumnFilter } from "./ColumnFilter";
-import * as Popover from "@radix-ui/react-popover";
 import "./DataGrid.css";
-import {
-  HiArrowDown,
-  HiArrowUp,
-  HiCheck,
-  HiViewColumns,
-} from "react-icons/hi2";
+import { HiArrowDown, HiArrowUp } from "react-icons/hi2";
+import { ColumnVisibility } from "./ColumnVisibility";
+import { DataGridPagination } from "./DataGridPagination";
 
 type DataGridProps<T> = {
   data: T[];
@@ -54,12 +50,14 @@ export function DataGrid<T>({
       sorting: [{ id: "id", desc: false }],
       pagination: {
         pageIndex: 0,
-        pageSize: 25,
+        pageSize: 15,
       },
     },
   });
 
   const rows = table.getRowModel().rows;
+  const filteredCount = table.getFilteredRowModel().rows.length;
+  const hasFilters = table.getState().columnFilters.length > 0;
 
   const emptyMessage =
     data.length === 0
@@ -69,52 +67,17 @@ export function DataGrid<T>({
   return (
     <div>
       <div className="data-grid-toolbar">
-        <h2>{title}</h2>
+        <div className="data-grid-heading">
+          <h2>{title}</h2>
+
+          <span className="data-grid-count">
+            {hasFilters ? `${filteredCount.toLocaleString("en-GB")} of ` : ""}
+            {data.length.toLocaleString("en-GB")} events
+          </span>
+        </div>
         <div className="data-grid-toolbar-actions">
           {actions}
-          <Popover.Root>
-            <Popover.Trigger asChild>
-              <button
-                type="button"
-                className="data-grid-columns-trigger"
-                aria-label="Display columns"
-              >
-                <HiViewColumns size={16} aria-hidden="true" />
-              </button>
-            </Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Content
-                className="data-grid-columns-popover"
-                align="end"
-                sideOffset={8}
-                collisionPadding={12}
-                aria-label="Display columns"
-              >
-                <p className="data-grid-columns-title">Display columns</p>
-
-                {table.getAllLeafColumns().map((column) => (
-                  <label className="data-grid-column-option" key={column.id}>
-                    <input
-                      type="checkbox"
-                      checked={column.getIsVisible()}
-                      disabled={!column.getCanHide()}
-                      onChange={column.getToggleVisibilityHandler()}
-                    />
-                    <HiCheck
-                      className="data-grid-column-check"
-                      size={16}
-                      aria-hidden="true"
-                    />
-                    <span>
-                      {typeof column.columnDef.header === "string"
-                        ? column.columnDef.header
-                        : column.id}
-                    </span>
-                  </label>
-                ))}
-              </Popover.Content>
-            </Popover.Portal>
-          </Popover.Root>
+          <ColumnVisibility table={table} />
         </div>
       </div>
 
@@ -265,28 +228,7 @@ export function DataGrid<T>({
       </div>
 
       {!isLoading && !error && rows.length > 0 && (
-        <div className="data-grid-pagination">
-          <button
-            type="button"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </button>
-
-          <span>
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {Math.max(1, table.getPageCount())}
-          </span>
-
-          <button
-            type="button"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </button>
-        </div>
+        <DataGridPagination table={table} />
       )}
     </div>
   );
