@@ -1,75 +1,48 @@
-# React + TypeScript + Vite
+# Event Workspace
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A small React and TypeScript app with a reusable DataGrid, Timeline and Add/Edit Event form.
 
-Currently, two official plugins are available:
+[Live app](https://react-event-workspace.vercel.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run locally
 
-## React Compiler
+Built using Node.js 22.15.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm ci
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm run lint     # ESLint
+npm run build    # TypeScript check and production build
+npm run preview  # Serve the build locally
 ```
+
+## Components
+
+**DataGrid** uses TanStack Table for client-side sorting, column filters, visibility and pagination. It displays 15 rows per page and supports loading, error and empty states.
+
+**Timeline** groups events by day and uses React Virtuoso to avoid rendering the full list. Click **Focus timeline**, then use Up/Down to move within a day and Left/Right to change days. A live region announces the focused event.
+
+**EventForm** handles both adding and editing. Title and date/time are required. Invalid submissions show errors and focus the first invalid field. Cancel discards changes, and saving an edit keeps the original ID.
+
+## Data and implementation
+
+The app generates 100,000 mock events. The first 10,000 are included in the timeline. New events are added to both views.
+
+Event data lives in `App`, and the timeline uses a subset of the same records. Editing a record updates both views if it belongs to the timeline.
+
+I used UTC for date input, display and grouping so events stay in the same day regardless of the browser's timezone.
+
+TanStack Table handles table state, while the table markup and controls are custom. React Virtuoso handles timeline virtualization. Radix UI provides the dialog and popovers.
+
+The table starts sorted by ID. New events follow the current sorting and filters, so they may not appear on the current page.
+
+## Checks and limitations
+
+Manually checked Add/Edit, validation, filters, pagination, keyboard navigation, focus restoration and responsive layouts. Timeline announcements were also checked with macOS VoiceOver.
+
+GitHub Actions runs `npm ci`, lint and build on pull requests to `main` and pushes to `main`.
+
+Data is stored in memory and resets on refresh. Loading and error states are available through DataGrid props. The app does not make API requests. Filtering and sorting run over the dataset in the browser.
