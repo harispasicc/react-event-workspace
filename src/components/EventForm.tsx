@@ -1,6 +1,7 @@
 import { useId, useRef, useState, type FormEvent } from "react";
 import type { CalendarEvent, EventStatus } from "../types/events";
 import "./EventForm.css";
+import { HiChevronDown } from "react-icons/hi2";
 
 type EventFormValues = Omit<CalendarEvent, "id">;
 
@@ -127,26 +128,32 @@ export function EventForm({ event, onSave, onCancel }: EventFormProps) {
 
       <div className="event-form-field">
         <label htmlFor={`${formId}-status`}>Status</label>
+        <div className="event-form-select">
+          <select
+            id={`${formId}-status`}
+            value={status}
+            onChange={(event) => {
+              const value = event.target.value;
 
-        <select
-          id={`${formId}-status`}
-          value={status}
-          onChange={(event) => {
-            const value = event.target.value;
-
-            if (
-              value === "scheduled" ||
-              value === "completed" ||
-              value === "cancelled"
-            ) {
-              setStatus(value);
-            }
-          }}
-        >
-          <option value="scheduled">Scheduled</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
+              if (
+                value === "scheduled" ||
+                value === "completed" ||
+                value === "cancelled"
+              ) {
+                setStatus(value);
+              }
+            }}
+          >
+            <option value="scheduled">Scheduled</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <HiChevronDown
+            className="event-form-select-icon"
+            size={16}
+            aria-hidden="true"
+          />
+        </div>
       </div>
 
       <div className="event-form-actions">
